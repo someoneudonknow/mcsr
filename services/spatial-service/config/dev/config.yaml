@@ -1,0 +1,29 @@
+app:
+  host: 127.0.0.1
+  port: 3001
+
+redis:
+  host: localhost
+  port: 6379
+  db: 0
+  username: spatial_service_user
+  max_retries: 3
+  dial_timeout: 5
+  min_retry_backoff: 10
+  max_retry_backoff: 500
+
+logger:
+  level: debug
+  filename: ../../storages/logs/app.log
+  max_size: 500
+  max_backups: 10
+  compress: true
+  max_age: 30
+
+websocket:
+  read_buffer_size: 1024
+  write_buffer_size: 1024
+  write_wait: 10
+  pong_wait: 60
+  max_message_size: 512
+  origins: ["*"]

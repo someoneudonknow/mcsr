@@ -1,0 +1,37 @@
+apisix:
+  node_listen:
+    - ${{APISIX_NODE_LISTEN:=9080}}
+  enable_admin: true
+  enable_control: true
+  control:
+    port: ${{APISIX_CONTROL_PORT:=9092}}
+  # nginx_config:
+  #   envs:
+  #     - TEST_ENV
+
+deployment:
+  role: traditional
+  role_traditional:
+    config_provider: etcd
+  admin:
+    admin_listen:
+      port: ${{APISIX_ADMIN_LISTEN:=9180}}
+    allow_admin:
+      - 0.0.0.0/0
+    admin_key_required: true
+    admin_key:
+      - name: admin
+        key: ${{APISIX_ADMIN_KEY:=admin}}
+        role: admin
+    enable_admin_ui: true
+
+  etcd:
+    host:
+      - http://etcd:2379
+    prefix: /apisix
+
+plugins:
+  - request-id
+  - serverless-pre-function
+  - cors
+  - proxy-rewrite

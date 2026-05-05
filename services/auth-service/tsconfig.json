@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "newLine": "lf",
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "es2024",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noEmitOnError": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitAny": false,
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "#config/*": ["./src/config/*"],
+      "#auth/*": ["./src/auth/*"],
+      "#db/*": ["./src/db/*"],
+      "#user/*": ["./src/user/*"],
+      "#entity/*": ["./src/entity/*"],
+      "#common/*": ["./src/common/*"]
+    }
+  },
+  "include": ["./typings/**/*", "./src/**/*", "./bin/**/*"],
+  "exclude": ["node_modules"]
+}
