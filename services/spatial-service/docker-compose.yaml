@@ -1,0 +1,15 @@
+services:
+  spatial-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: geomessage_spatial_service
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - redis
+      - etcd
+      - apisix

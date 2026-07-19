@@ -32,4 +32,3 @@ export class AuthResponseDto {
   refreshToken!: string;
   user!: User;
 }
-

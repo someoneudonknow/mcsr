@@ -1,0 +1,44 @@
+# --- Binaries and Build Artifacts ---
+# Compiled applications
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+dist/
+
+# Test binaries
+*.test
+*.out
+
+# --- Go Modules & Workspaces ---
+# Keep go.env if you use it for local tooling overrides
+go.work
+go.work.sum
+
+# --- Code Coverage and Profiling ---
+*.cprof
+*.pprof
+*.mprof
+cover.out
+
+# --- Environment and Secrets ---
+.env
+.env.*
+!.env.example
+secrets.yaml
+
+# --- IDEs and Editors ---
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*~
+
+# --- Operating System Files ---
+.DS_Store
+Thumbs.db

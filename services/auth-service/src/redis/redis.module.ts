@@ -29,7 +29,7 @@ export class RedisModule implements OnApplicationShutdown {
         ...this.createAsyncProviders(options),
         {
           provide: REDIS_CLIENT,
-          useFactory: async (opts: RedisModuleOptions) => {
+          useFactory: (opts: RedisModuleOptions) => {
             const redisClient = new Redis(opts);
             return redisClient;
           },

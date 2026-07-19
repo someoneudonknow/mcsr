@@ -1,54 +1,56 @@
 <!doctype html>
 <html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>WebSocket Test</title>
+    </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <title>WebSocket Test</title>
-</head>
+    <body>
+        <h2>WebSocket Test Client</h2>
 
-<body>
-  <h2>WebSocket Test Client</h2>
+        <input
+            id="messageInput"
+            type="text"
+            placeholder="Enter message..."
+            size="50"
+        />
+        <button onclick="sendMessage()">Send</button>
+        <pre id="log"></pre>
 
-  <input id="messageInput" type="text" placeholder="Enter message..." size="50" />
-  <button onclick="sendMessage()">Send</button>
+        <script>
+            const log = (msg) => {
+                const el = document.getElementById("log");
+                el.textContent += msg + "\n";
+            };
 
-  <pre id="log"></pre>
+            const ws = new WebSocket("ws://localhost:3001/ws");
 
-  <script>
-    const log = (msg) => {
-      const el = document.getElementById("log");
-      el.textContent += msg + "\n";
-    };
+            ws.onopen = () => {
+                log("✅ Connected to server");
+            };
 
-    const ws = new WebSocket("ws://localhost:3001/ws");
+            ws.onmessage = (event) => {
+                log("📩 Received: " + event.data);
+            };
 
-    ws.onopen = () => {
-      log("✅ Connected to server");
-    };
+            ws.onclose = () => {
+                log("❌ Connection closed");
+            };
 
-    ws.onmessage = (event) => {
-      log("📩 Received: " + event.data);
-    };
+            ws.onerror = (err) => {
+                log("⚠️ Error: " + err);
+            };
 
-    ws.onclose = () => {
-      log("❌ Connection closed");
-    };
+            function sendMessage() {
+                const input = document.getElementById("messageInput");
+                const message = input.value;
 
-    ws.onerror = (err) => {
-      log("⚠️ Error: " + err);
-    };
+                if (!message) return;
 
-    function sendMessage() {
-      const input = document.getElementById("messageInput");
-      const message = input.value;
-
-      if (!message) return;
-
-      ws.send(message);
-      log("📤 Sent: " + message);
-      input.value = "";
-    }
-  </script>
-</body>
-
+                ws.send(message);
+                log("📤 Sent: " + message);
+                input.value = "";
+            }
+        </script>
+    </body>
 </html>

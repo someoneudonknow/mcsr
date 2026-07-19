@@ -1,17 +1,21 @@
-.PHONY: run build clean
+.PHONY: run tidy build
 
-NAME=spatial-service
-BIN_PATH=./bin
-CMD_PATH=./cmd/server/main.go
+image-name=geomessage/spatial-service:latest
+container-name=geomessage-spatial-service
+dockerfile-path=.
+app-port=8080
 
 run:
-	go run $(CMD_PATH)
+	go run ./cmd/api/main.go
 
-build:
-	mkdir -p $(BIN_PATH)
-	go build -o $(BIN_PATH)/$(NAME) $(CMD_PATH)
+tidy:
+	go mod tidy
 
-clean:
-	rm -rf $(BIN_PATH)/$(NAME)
+docker-build:
+	docker build -t $(image-name) $(dockerfile-path)
 
-rebuild: clean build
+docker-run:
+	docker run -d -p $(app-port):$(app-port) $(image-name) --rm --name $(container-name) 
+
+docker-restart:
+	docker restart $(container-name)

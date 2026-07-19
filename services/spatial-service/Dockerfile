@@ -1,25 +1,24 @@
-FROM golang:1.26.2-alpine3.23 as builder
+FROM golang:1.26-alpine AS builder-stage
 
 WORKDIR /app
 
-RUN apk add --no-cache git
-
 COPY go.mod go.sum ./
+
 RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
-  go build -ldflags="-s -w" -o spatial-service
+RUN CGO_ENABLED=0 GOOS=linux go build -o /spatial-service ./cmd/api/main.go
 
-FROM alpine:3.20
+FROM gcr.io/distroless/base-debian11 AS release-stage
 
 WORKDIR /app
 
-COPY --from=builder /app/spatial-service .
+COPY --from=builder-stage /spatial-service /app/spatial-service
+COPY --from=builder-stage /app/config ./config
 
-ENV PORT 3002
+EXPOSE 8080
 
-EXPOSE $PORT
+USER nonroot:nonroot
 
-CMD ["./geomessage-spatial-service"]
+ENTRYPOINT ["/app/spatial-service"]

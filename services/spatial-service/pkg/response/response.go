@@ -1,40 +1,52 @@
 package response
 
 import (
-	"github.com/gin-gonic/gin"
+	"net/http"
+
+	"github.com/labstack/echo/v5"
 )
 
-type Response[T any] struct {
-	Message  string `json:"message"`
-	Metadata T      `json:"metadata,omitempty"`
-	Code     int    `json:"code,omitempty"`
-	Success  bool   `json:"success"`
+type SuccessResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message,omitempty"`
+	Data    any    `json:"data,omitempty"`
+	Meta    any    `json:"meta,omitempty"`
 }
 
-type ErrorResponse struct {
-	Message string `json:"message"`
-	Code    int    `json:"code"`
-	Details any    `json:"details,omitempty"`
+func NoContent(c *echo.Context) error {
+	return c.NoContent(http.StatusNoContent)
 }
 
-type WSErrorResponse struct {
-	Message string `json:"message"`
-	Details any    `json:"details,omitempty"`
-}
-
-func JSONSuccess[T any](c *gin.Context, status int, message string, metadata T) {
-	c.JSON(status, Response[T]{
-		Message:  message,
-		Metadata: metadata,
-		Code:     status,
-		Success:  true,
+func Created(c *echo.Context, message string, data any) error {
+	return c.JSON(http.StatusCreated, SuccessResponse{
+		Success: true,
+		Data:    data,
+		Message: message,
 	})
 }
 
-func JSONError(c *gin.Context, message string, code int, details any) {
-	c.JSON(code, ErrorResponse{
+func CreatedWithMeta(c *echo.Context, message string, data any, meta any) error {
+	return c.JSON(http.StatusCreated, SuccessResponse{
+		Success: true,
+		Data:    data,
 		Message: message,
-		Code:    code,
-		Details: details,
+		Meta:    meta,
+	})
+}
+
+func OK(c *echo.Context, message string, data any) error {
+	return c.JSON(http.StatusOK, SuccessResponse{
+		Success: true,
+		Data:    data,
+		Message: message,
+	})
+}
+
+func OKWithMeta(c *echo.Context, message string, data any, meta any) error {
+	return c.JSON(http.StatusOK, SuccessResponse{
+		Success: true,
+		Data:    data,
+		Message: message,
+		Meta:    meta,
 	})
 }
