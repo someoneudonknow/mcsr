@@ -36,16 +36,20 @@ type CORSConfig struct {
 }
 
 type DatabaseConfig struct {
-	MaxOpenConns    int    `mapstructure:"max_open_conns"`
-	MaxIdleConns    int    `mapstructure:"max_idle_conns"`
-	Port            int    `mapstructure:"port"`
-	Type            string `mapstructure:"type"`
-	Host            string `mapstructure:"host"`
-	User            string `mapstructure:"user"`
-	Password        string `mapstructure:"password"`
-	ConnMaxLifetime string `mapstructure:"conn_max_lifetime"`
-	DBName          string `mapstructure:"dbname"`
-	SSLMode         string `mapstructure:"ssl_mode"`
+	MaxOpenConns    int           `mapstructure:"max_open_conns"`
+	MaxIdleConns    int           `mapstructure:"max_idle_conns"`
+	Port            int           `mapstructure:"port"`
+	Type            string        `mapstructure:"type"`
+	Host            string        `mapstructure:"host"`
+	User            string        `mapstructure:"user"`
+	Password        string        `mapstructure:"password"`
+	ConnMaxLifetime time.Duration `mapstructure:"conn_max_lifetime"`
+	DBName          string        `mapstructure:"dbname"`
+	SSLMode         string        `mapstructure:"ssl_mode"`
+}
+
+func (d DatabaseConfig) DSN() string {
+	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s", d.Host, d.Port, d.User, d.Password, d.DBName, d.SSLMode)
 }
 
 type RedisConfig struct {

@@ -27,14 +27,12 @@ func New(lc fx.Lifecycle, cfg *config.Config, l *logger.Logger) *redis.Client {
 		MaxRetries:   cfg.Redis.MaxRetries,
 	}
 
-	l.Infof("redis opts: addr=%s user=%q password=%q", opts.Addr, opts.Username, opts.Password)
-
 	if cfg.Redis.TLSEnabled {
 		opts.TLSConfig = &tls.Config{MinVersion: tls.VersionTLS12}
 	}
 
 	client := redis.NewClient(opts)
-	// client.AddHook(newLoggingHook(l))
+	client.AddHook(newLoggingHook(l))
 
 	return client
 }

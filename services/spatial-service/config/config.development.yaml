@@ -27,10 +27,7 @@ cors:
 
 database:
   type: postgres
-  # host: ""
-  # port: ""
-  # user: ""
-  # password: ""
+  # dsn: ""
   dbname: spatial-service
   ssl_mode: disable
   max_open_conns: 25
