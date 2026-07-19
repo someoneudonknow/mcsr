@@ -5,6 +5,7 @@ import (
 	"spatial-service/internal/health"
 	"spatial-service/internal/platform/httpserver"
 	"spatial-service/internal/platform/logger"
+	"spatial-service/internal/platform/migrate"
 	"spatial-service/internal/platform/postgres"
 	"spatial-service/internal/platform/redis"
 	"spatial-service/internal/platform/validator"
@@ -18,6 +19,7 @@ var Modules = fx.Options(
 	validator.Module,
 	redis.Module,
 	postgres.Module,
+	migrate.Module,
 	httpserver.Module,
 	health.Module,
 )
