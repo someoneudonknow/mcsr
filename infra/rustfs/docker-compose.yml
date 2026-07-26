@@ -1,0 +1,60 @@
+services:
+  rustfs-permission-helper:
+    image: alpine:3.20
+    container_name: geomessage-rustfs-perms
+    restart: "no"
+    volumes:
+      - rustfs_data_0:/data0
+      - rustfs_data_1:/data1
+      - rustfs_data_2:/data2
+      - rustfs_data_3:/data3
+      - rustfs_logs_data:/logs
+    command: >
+      sh -c "
+        chown -R 10001:10001 /data0 /data1 /data2 /data3 /logs &&
+        echo 'volume permissions OK'
+      "
+    networks:
+      - rustfs-network
+
+  rustfs:
+    image: rustfs/rustfs:latest
+    container_name: geomessage_rustfs
+    restart: unless-stopped
+    security_opt:
+      - "no-new-privileges:true"
+    environment:
+      - RUSTFS_ACCESS_KEY=d3455b70c7a6a50e85bd2fdd9cfb6604096b05542bbe7c8dc43dc669c3a6b0a9
+      - RUSTFS_SECRET_KEY=0c3421eb318838aa7da19626d0f4f7a297a1b26f92c1fa7f2dfef247fa30285b
+      - RUSTFS_VOLUMES=/data/rustfs{0...3}
+      - RUSTFS_ADDRESS=0.0.0.0:9000
+      - RUSTFS_CONSOLE_ENABLE=true
+      - RUSTFS_CONSOLE_ADDRESS=0.0.0.0:9001
+      - RUSTFS_OBS_LOG_DIRECTORY=/logs
+      - RUSTFS_OBS_LOGGER_LEVEL=error
+      - RUSTFS_UNSAFE_BYPASS_DISK_CHECK=true
+    ports:
+      - "6000:9000"
+      - "6001:9001"
+    volumes:
+      - rustfs_data_0:/data/rustfs0
+      - rustfs_data_1:/data/rustfs1
+      - rustfs_data_2:/data/rustfs2
+      - rustfs_data_3:/data/rustfs3
+      - rustfs_logs_data:/logs
+    depends_on:
+      rustfs-permission-helper:
+        condition: service_completed_successfully
+    networks:
+      - rustfs-network
+
+networks:
+  rustfs-network:
+    driver: bridge
+
+volumes:
+  rustfs_data_0:
+  rustfs_data_1:
+  rustfs_data_2:
+  rustfs_data_3:
+  rustfs_logs_data:

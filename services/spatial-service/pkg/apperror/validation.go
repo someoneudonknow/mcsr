@@ -12,6 +12,7 @@ func FromValidation(err error) *AppError {
 	if verrs, ok := err.(validator.ValidationErrors); ok {
 		for _, verr := range verrs {
 			fields = append(fields, FieldError{
+				// TODO: remove this with the real error
 				Field:   verr.Field(),
 				Message: verr.Tag(),
 			})

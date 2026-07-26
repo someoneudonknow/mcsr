@@ -8,6 +8,7 @@ import (
 	"spatial-service/internal/platform/migrate"
 	"spatial-service/internal/platform/postgres"
 	"spatial-service/internal/platform/redis"
+	"spatial-service/internal/platform/s3"
 	"spatial-service/internal/platform/validator"
 
 	"go.uber.org/fx"
@@ -20,6 +21,7 @@ var Modules = fx.Options(
 	redis.Module,
 	postgres.Module,
 	migrate.Module,
+	s3.Module,
 	httpserver.Module,
 	health.Module,
 )

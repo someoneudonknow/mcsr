@@ -14,13 +14,6 @@ import (
 )
 
 func Run(db *gorm.DB, log *logger.Logger, cfg *config.Config) error {
-	isDev := cfg.Env == "development"
-
-	if isDev {
-		db.AutoMigrate()
-		return nil
-	}
-
 	sqlDB, err := db.DB()
 	if err != nil {
 		return fmt.Errorf("run migration: %w", err)
@@ -33,7 +26,7 @@ func Run(db *gorm.DB, log *logger.Logger, cfg *config.Config) error {
 
 	src, err := iofs.New(migrations.FS, ".")
 	if err != nil {
-		return fmt.Errorf("migration source %w", src)
+		return fmt.Errorf("migration source %w", err)
 	}
 
 	m, err := migrate.NewWithInstance("iofs", src, "postgres", driver)

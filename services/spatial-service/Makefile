@@ -1,21 +1,41 @@
-.PHONY: run tidy build
+.PHONY: init run tidy docker-build docker-run docker-restart migrate-gen migrate-lint migrate-apply
 
-image-name=geomessage/spatial-service:latest
-container-name=geomessage-spatial-service
-dockerfile-path=.
-app-port=8080
+IMAGE_NAME=geomessage/spatial-service:latest
+CONTAINER_NAME=geomessage-spatial-service
+DOCKERFILE_PATH=.
+APP_PORT=8080
 
-run:
-	go run ./cmd/api/main.go
+init:
+ifeq ($(OS),Windows_NT)
+	@echo "Detected OS: Windows"
+	@echo "Detected Windows. Launching PowerShell script..."
+	@powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
+else
+	@echo "Detected Unix-like OS. Launching shell script..."
+	@chmod +x ./scripts/devtools/install.sh
+	@./scripts/devtools/install.sh
+endif
+
+run-dev:
+	air
+
+migrate-gen:
+	atlas migrate diff $(name) --env gorm
+
+migrate-lint:
+	atlas migrate lint --env gorm --latest 1
+
+migrate-apply:
+	atlas migrate apply --env gorm
 
 tidy:
 	go mod tidy
 
 docker-build:
-	docker build -t $(image-name) $(dockerfile-path)
+	docker build -t $(IMAGE_NAME) $(DOCKERFILE_PATH)
 
 docker-run:
-	docker run -d -p $(app-port):$(app-port) $(image-name) --rm --name $(container-name) 
+	docker run -d -p $(APP_PORT):$(APP_PORT) $(IMAGE_NAME) --rm --name $(CONTAINER_NAME) 
 
 docker-restart:
-	docker restart $(container-name)
+	docker restart $(CONTAINER_NAME)

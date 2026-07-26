@@ -17,6 +17,7 @@ type Config struct {
 	Database DatabaseConfig `mapstructure:"database"`
 	Redis    RedisConfig    `mapstructure:"redis"`
 	Logger   LoggerConfig   `mapstructure:"logger"`
+	S3       S3Config       `mapstructure:"s3"`
 }
 
 type ServerConfig struct {
@@ -46,10 +47,20 @@ type DatabaseConfig struct {
 	ConnMaxLifetime time.Duration `mapstructure:"conn_max_lifetime"`
 	DBName          string        `mapstructure:"dbname"`
 	SSLMode         string        `mapstructure:"ssl_mode"`
+	Timezone        string        `mapstructure:"timezone"`
 }
 
 func (d DatabaseConfig) DSN() string {
-	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s", d.Host, d.Port, d.User, d.Password, d.DBName, d.SSLMode)
+	return fmt.Sprintf(
+		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s timezone=%s",
+		d.Host,
+		d.Port,
+		d.User,
+		d.Password,
+		d.DBName,
+		d.SSLMode,
+		d.Timezone,
+	)
 }
 
 type RedisConfig struct {
@@ -74,6 +85,16 @@ type LoggerConfig struct {
 	MaxBackups int    `mapstructure:"max_backups"`
 	Compress   bool   `mapstructure:"compress"`
 	MaxAge     int    `mapstructure:"max_age"`
+}
+
+type S3Config struct {
+	Region          string        `mapstructure:"region"`
+	Bucket          string        `mapstructure:"bucket"`
+	AccessKeyID     string        `mapstructure:"access_key_id"`
+	SecretAccessKey string        `mapstructure:"secret_access_key"`
+	Endpoint        string        `mapstructure:"endpoint"`
+	UsePathStyle    bool          `mapstructure:"use_path_style"`
+	PresignExpiry   time.Duration `mapstructure:"presign_expiry"`
 }
 
 func Load() (*Config, error) {
@@ -117,6 +138,11 @@ func bindEnv(v *viper.Viper) {
 	v.BindEnv("database.port")
 	v.BindEnv("database.user")
 	v.BindEnv("database.password")
+
+	v.BindEnv("s3.access_key_id")
+	v.BindEnv("s3.secret_access_key")
+	v.BindEnv("s3.bucket")
+	v.BindEnv("s3.endpoint")
 }
 
 func setDefaults(v *viper.Viper) {
@@ -124,6 +150,10 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("server.read_timeout", "10s")
 	v.SetDefault("server.write_timeout", "10s")
 	v.SetDefault("server.api_prefix", "/api")
+
+	v.SetDefault("s3.region", "us-east-1")
+	v.SetDefault("s3.use_path_style", false)
+	v.SetDefault("s3.presign_expiry", "15m")
 
 	v.SetDefault("database.type", "postgres")
 	v.SetDefault("database.ssl_mode", "disable")

@@ -4,6 +4,15 @@ server:
   write_timeout: 10s
   api_prefix: /api
 
+s3:
+  region: asia/ho_chi_minh
+  bucket: spatial-service-bucket
+  access_key_id: kdkdk
+  secret_access_key: kdjdls
+  endpoint: /path
+  use_path_style: true
+  presign_expiry: 2m
+
 cors:
   allow_origins:
     - "http://localhost:3000"
@@ -27,12 +36,16 @@ cors:
 
 database:
   type: postgres
-  # dsn: ""
-  dbname: spatial-service
+  # host: ""
+  # port: ""
+  # user: ""
+  # password: ""
+  dbname: spatial_db
   ssl_mode: disable
   max_open_conns: 25
   max_idle_conns: 5
   conn_max_lifetime: 5m
+  timezone: Asia/Ho_Chi_Minh
 
 redis:
   # addr: ""
