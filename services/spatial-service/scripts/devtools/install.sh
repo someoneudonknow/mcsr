@@ -56,7 +56,6 @@ data "external_schema" "gorm" {
 env "gorm" {
   src = data.external_schema.gorm.url
   dev = "docker://postgres/18/dev"
-  exclude = ["bases"]
   migration {
     dir = "file://internal/migrations?format=golang-migrate"
   }

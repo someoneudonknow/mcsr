@@ -1,7 +1,9 @@
 package models
 
+import "spatial-service/internal/platform/postgres"
+
 type User struct {
-	Base
+	postgres.BaseModel
 	ExternalID string `gorm:"uniqueIndex;not null" json:"external_id"`
 	Email      string `gorm:"uniqueIndex"          json:"email"`
 	UserName   string `                            json:"user_name"`
