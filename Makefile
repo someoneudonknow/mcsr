@@ -20,4 +20,4 @@ logs:
 	docker compose -f infra/docker-compose.yml logs -f
 
 build:
-	docker build -t geomessage-auth-service ./services/auth-service
+	docker build -t mcsr-auth-service ./services/auth-service

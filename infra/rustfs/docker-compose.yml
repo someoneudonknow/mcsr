@@ -1,7 +1,7 @@
 services:
   rustfs-permission-helper:
     image: alpine:3.20
-    container_name: geomessage-rustfs-perms
+    container_name: mcsr-rustfs-perms
     restart: "no"
     volumes:
       - rustfs_data_0:/data0
@@ -19,7 +19,7 @@ services:
 
   rustfs:
     image: rustfs/rustfs:latest
-    container_name: geomessage_rustfs
+    container_name: mcsr_rustfs
     restart: unless-stopped
     security_opt:
       - "no-new-privileges:true"
@@ -47,6 +47,7 @@ services:
         condition: service_completed_successfully
     networks:
       - rustfs-network
+      - mcsr-backend
 
 networks:
   rustfs-network:

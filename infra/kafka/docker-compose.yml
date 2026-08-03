@@ -1,7 +1,7 @@
 services:
   kafka-1:
     image: apache/kafka:latest
-    container_name: geomessage_kafka_1
+    container_name: mcsr_kafka_1
     restart: unless-stopped
     hostname: kafka-1
     environment:
@@ -26,10 +26,12 @@ services:
       - "9092:9092"
     volumes:
       - kafka_1_data:/var/lib/kafka/data
+    networks:
+      - mcsr-backend
 
   kafka-2:
     image: apache/kafka:latest
-    container_name: geomessage_kafka_2
+    container_name: mcsr_kafka_2
     restart: unless-stopped
     hostname: kafka-2
     environment:
@@ -52,10 +54,12 @@ services:
       - "9093:9092"
     volumes:
       - kafka_2_data:/var/lib/kafka/data
+    networks:
+      - mcsr-backend
 
   kafka-3:
     image: apache/kafka:latest
-    container_name: geomessage_kafka_3
+    container_name: mcsr_kafka_3
     restart: unless-stopped
     hostname: kafka-3
     environment:
@@ -78,6 +82,8 @@ services:
       - "9094:9092"
     volumes:
       - kafka_3_data:/var/lib/kafka/data
+    networks:
+      - mcsr-backend
 
 volumes:
   kafka_1_data:

@@ -1,0 +1,32 @@
+services:
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcsr_auth_service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=dev
+      - APP_PORT=3001
+      - DB_TYPE=postgres
+      - DB_HOST=mcsr_postgres
+      - DB_PORT=5432
+      - DB_USER=auth_user
+      - DB_PASS=yMBaQ7bZuYAyN1Tf
+      - DB_NAME=auth_db
+      - REDIS_HOST=mcsr_redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=yMBaQ7bZuYAyN1Tf
+      - REDIS_USERNAME=auth_service_user
+      - REDIS_DB=0
+      - JWT_ACCESS_TOKEN_EXPIRATION=1d
+      - JWT_REFRESH_TOKEN_EXPIRATION=7d
+    ports:
+      - '3001:3001'
+    networks:
+      - mcsr-backend
+
+networks:
+  mcsr-backend:
+    name: infra_mcsr-backend
+    external: true

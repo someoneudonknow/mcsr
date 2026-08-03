@@ -1,7 +1,7 @@
 .PHONY: init run tidy docker-build docker-run docker-restart migrate-gen migrate-lint migrate-apply
 
-IMAGE_NAME=geomessage/spatial-service:latest
-CONTAINER_NAME=geomessage-spatial-service
+IMAGE_NAME=mcsr/spatial-service:latest
+CONTAINER_NAME=mcsr-spatial-service
 DOCKERFILE_PATH=.
 APP_PORT=8080
 

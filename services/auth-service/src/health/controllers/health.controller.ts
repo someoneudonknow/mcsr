@@ -8,7 +8,7 @@ import { RedisHealthIndicator } from '../providers';
 import { NoResponseFormat, Public } from '#common/decorators';
 
 @Controller({
-  path: 'health',
+  path: 'healthz',
   version: VERSION_NEUTRAL,
 })
 export class HealthController {
