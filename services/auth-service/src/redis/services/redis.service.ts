@@ -14,6 +14,10 @@ export class RedisService {
     return await this.redisClient.ping();
   }
 
+  async incr(key: RedisKey): Promise<number> {
+    return await this.redisClient.incr(key);
+  }
+
   async hgetall<T>(key: RedisKey) {
     const data = await this.redisClient.hgetall(key);
 
@@ -24,8 +28,17 @@ export class RedisService {
     return data as T;
   }
 
-  async hset<T>(key: RedisKey, object: T) {
-    return await this.redisClient.hset(key, object as Record<string, any>);
+  async hset<T>(key: RedisKey, object: T, ttl?: number) {
+    const payload = object as Record<string, any>;
+    if (!ttl) {
+      return await this.redisClient.hset(key, payload);
+    }
+
+    return await this.redisClient
+      .multi()
+      .hset(key, payload)
+      .expire(key, ttl)
+      .exec();
   }
 
   async sismember(
@@ -38,8 +51,16 @@ export class RedisService {
   async sadd(
     key: RedisKey,
     members: (string | number | Buffer<ArrayBufferLike>)[],
+    ttl?: number,
   ) {
-    return await this.redisClient.sadd(key, members);
+    if (!ttl) {
+      return await this.redisClient.sadd(key, members);
+    }
+    return await this.redisClient
+      .multi()
+      .sadd(key, members)
+      .expire(key, ttl)
+      .exec();
   }
 
   async set(key: RedisKey, value: string, ttl?: number) {

@@ -1,17 +1,14 @@
-import { User } from '#entity/user.model';
-import { IsNotEmpty, MaxLength, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
-export class AuthDto {
-  @MaxLength(100)
-  @IsNotEmpty()
-  username!: string;
-
-  @IsNotEmpty()
-  @MinLength(6)
-  password!: string;
-}
-
-export class RegisterDto extends AuthDto {
+export class RegisterDto {
   @MaxLength(100)
   @IsNotEmpty()
   email!: string;
@@ -30,5 +27,4 @@ export class LoginDto {
 export class AuthResponseDto {
   accessToken!: string;
   refreshToken!: string;
-  user!: User;
 }

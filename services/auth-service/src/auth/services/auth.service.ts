@@ -10,76 +10,57 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { KeyTokenService } from './key-token.service';
-import { KeyTokenData, UserJwtPayload } from '#auth/interfaces';
+import { UserJwtPayload } from '#auth/interfaces';
+import { JwtTokenService } from './jwt-token.service';
+import { SessionService } from './session.service';
+import { isSlugReserved, isSlugValid, normalizeSlug } from '#common/utils';
+import { ErrorCode } from '#common/exceptions';
+import { randomUUID } from 'crypto';
+import { TenantRegisterDto, TenantRegisterResponseDto } from '#auth/dtos';
+import { v7 as uuidv7 } from 'uuid';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
-    private readonly keyTokenService: KeyTokenService,
+    private readonly jwtTokenService: JwtTokenService,
+    private readonly sessionService: SessionService,
   ) {}
 
-  async refreshTheToken({
-    userJwtPayload,
-    refreshToken,
-    keyToken,
-  }: {
-    userJwtPayload: UserJwtPayload;
-    refreshToken: string;
-    keyToken: KeyTokenData;
-  }) {
-    if (!userJwtPayload || !refreshToken || !keyToken) {
-      throw new UnauthorizedException('Invalid credentials.');
-    }
+  async refreshTheToken({ payload }: { payload: UserJwtPayload }) {
+    const { sub: userId, email, jti } = payload;
 
-    const { userId, email } = userJwtPayload;
-
-    const isRefreshTokenUsed = await this.keyTokenService.isRefreshTokenUsed(
-      userId,
-      refreshToken,
-    );
-    if (isRefreshTokenUsed) {
+    if (await this.sessionService.isRefreshJtiUsed(userId, jti)) {
       await this.logout(userId);
-
       throw new ForbiddenException(
         'There was some suspicious behaviour in your account! Please log in again!',
       );
     }
 
-    if (refreshToken !== keyToken.refreshToken) {
-      throw new UnauthorizedException('Invalid refresh token.');
+    const session = await this.sessionService.find(userId);
+    if (!session || session.refreshJti !== jti) {
+      throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const userFound = await this.userService.findByEmail(email);
-    if (!userFound) {
+    const currentVersion = await this.sessionService.getSessionVersion(userId);
+    this.sessionService.assertNotRevoked(payload, currentVersion);
+
+    const user = await this.userService.findByEmail(email);
+    if (!user) {
       throw new BadRequestException("You're not registered.");
     }
 
-    const { accessToken, refreshToken: newRefreshToken } =
-      this.keyTokenService.createJWTTokenPair(
-        {
-          userId: userFound.id,
-          email: userFound.email,
-        },
-        keyToken.privateKey,
+    const { accessToken, refreshToken, refreshJti } =
+      this.jwtTokenService.signTokenPair(
+        { sub: user.id, email: user.email },
+        currentVersion,
       );
-    const updatedKeyToken = await this.keyTokenService.updateKeyToken(userId, {
-      refreshToken: newRefreshToken,
-    });
-    console.log({ updatedKeyToken });
-    if (!updatedKeyToken) {
-      throw new InternalServerErrorException(
-        'Something went wrong while refreshing the token, please try again later.',
-      );
-    }
 
-    await this.keyTokenService.appendRefreshToken(userId, refreshToken);
+    await this.sessionService.rotate(userId, jti, refreshJti);
 
     return {
       accessToken,
-      refreshToken: newRefreshToken,
-      user: userFound,
+      refreshToken: refreshToken,
     };
   }
 
@@ -87,13 +68,8 @@ export class AuthService {
     if (!userId) {
       throw new UnauthorizedException('Invalid credentials.');
     }
-
-    const cleaned = await this.keyTokenService.cleanKeyToken(userId);
-    if (!cleaned) {
-      throw new InternalServerErrorException(
-        'Something went wrong while logging out, please try again later.',
-      );
-    }
+    await this.sessionService.bumpSessionVersion(userId);
+    await this.sessionService.end(userId);
     return true;
   }
 
@@ -117,33 +93,22 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials.');
     }
 
-    const { privateKey, publicKey } = this.keyTokenService.generateRSAKeyPair();
-    const { accessToken, refreshToken } =
-      this.keyTokenService.createJWTTokenPair(
+    return await this.issueSession(user);
+  }
+
+  private async issueSession(user: Tenants): Promise<AuthResponseDto> {
+    const sessionVersion = await this.sessionService.getSessionVersion(user.id);
+    const { accessToken, refreshToken, refreshJti } =
+      this.jwtTokenService.signTokenPair(
         {
-          userId: user.id,
+          sub: user.id,
           email: user.email,
         },
-        privateKey,
+        sessionVersion,
       );
+    await this.sessionService.start(user.id, refreshJti);
 
-    const ok = this.keyTokenService.createKeyToken({
-      userId: user.id,
-      publicKey,
-      privateKey,
-      refreshToken,
-    });
-    if (!ok) {
-      throw new InternalServerErrorException(
-        'Something went wrong while logging in, please try again later.',
-      );
-    }
-
-    return {
-      accessToken,
-      refreshToken,
-      user,
-    };
+    return { accessToken, refreshToken };
   }
 
   async register({
@@ -177,32 +142,6 @@ export class AuthService {
       );
     }
 
-    const { privateKey, publicKey } = this.keyTokenService.generateRSAKeyPair();
-    const { accessToken, refreshToken } =
-      this.keyTokenService.createJWTTokenPair(
-        {
-          userId: newUser.id,
-          email: newUser.email,
-        },
-        privateKey,
-      );
-
-    const insertedKeyToken = this.keyTokenService.createKeyToken({
-      userId: newUser.id,
-      publicKey,
-      privateKey,
-      refreshToken: refreshToken,
-    });
-    if (!insertedKeyToken) {
-      throw new InternalServerErrorException(
-        'Something went wrong while registering, please try again later.',
-      );
-    }
-
-    return {
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-      user: newUser,
-    };
+    return await this.issueSession(newUser);
   }
 }

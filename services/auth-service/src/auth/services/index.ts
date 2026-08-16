@@ -1,2 +1,3 @@
 export { AuthService } from './auth.service';
-export { KeyTokenService } from './key-token.service';
+export { JwtTokenService } from './jwt-token.service';
+export { SessionService } from './session.service';

@@ -10,7 +10,7 @@ async function bootstrap() {
   middleware(app);
 
   app.setGlobalPrefix('api', {
-    exclude: ['/healthz'],
+    exclude: ['/healthz', '/.well-known/jwks.json'],
   });
   app.enableVersioning({
     type: VersioningType.URI,

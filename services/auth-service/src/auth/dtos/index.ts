@@ -1,1 +1,2 @@
-export { RegisterDto } from './auth.dto';
+export * from './tenant-auth.dto';
+export * from './auth.dto';

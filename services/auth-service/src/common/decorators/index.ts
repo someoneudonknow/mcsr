@@ -8,3 +8,4 @@ export {
   NoResponseFormat,
   NO_RESPONSE_FORMAT_KEY,
 } from './no-response-format.decorator';
+export { RefreshOnly, IS_REFRESH_ONLY_KEY } from './refresh-only.decorator';

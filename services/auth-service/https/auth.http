@@ -17,3 +17,6 @@ Content-Type: application/json
   "usernameOrEmail": "tudeptrai",
   "password": "123456"
 }
+
+### Get jwks
+GET http://localhost:3001/.well-known/jwks.json HTTP/1.1

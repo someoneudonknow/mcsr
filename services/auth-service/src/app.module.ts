@@ -15,6 +15,9 @@ import { RedisModule } from './redis/redis.module';
 import { RedisModuleOptions } from './redis/redis.type';
 import { AuthGuard } from '#common/guards';
 import { HealthModule } from './health/health.module';
+import { OrganizationModule } from './organization/organization.module';
+import { KafkaModule } from './kafka/kafka.module';
+import { OutboxModule } from './outbox/outbox.module';
 
 @Module({
   imports: [
@@ -37,10 +40,13 @@ import { HealthModule } from './health/health.module';
       }),
       inject: [ConfigService],
     }),
+    KafkaModule,
     CommonModule,
+    HealthModule,
+    OutboxModule,
     AuthModule,
     UserModule,
-    HealthModule,
+    OrganizationModule,
   ],
   providers: [
     {

@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package organization.v1;
+
+service OrganizationService {
+    rpc ReserveSlug(ReserveSlugRequest) returns (ReserveSlugResponse);
+    rpc ReleaseSlug(ReleaseSlugRequest) returns (ReleaseSlugResponse);
+}
+
+message ReserveSlugRequest {
+    string slug = 1;
+    string organization_name = 2;
+    string owner_identity_id = 3;
+    string owner_email = 4;
+    string idempotency_key = 5;
+}
+
+message ReserveSlugResponse {
+    string tenant_id = 1;
+}
+
+message ReleaseSlugRequest {
+    string tenant_id = 1;
+}
+
+message ReleaseSlugResponse {
+    bool released = 1;
+}

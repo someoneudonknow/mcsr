@@ -1,5 +1,5 @@
-import { KeyTokenService } from '#auth/services';
-import { IS_PUBLIC_KEY } from '#common/decorators';
+import { JwtTokenService, SessionService } from '#auth/services';
+import { IS_PUBLIC_KEY, IS_REFRESH_ONLY_KEY } from '#common/decorators';
 import {
   CanActivate,
   ExecutionContext,
@@ -12,31 +12,41 @@ import { Request } from 'express';
 const headers = {
   AUTHORIZATION: 'authorization',
   REFRESH_TOKEN: 'refresh-token',
-  X_CLIENT_ID: 'x-client-id',
 } as const;
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
-    private readonly keyTokenService: KeyTokenService,
+    private readonly jwtTokenService: JwtTokenService,
+    private readonly sessionService: SessionService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.get<boolean>(
-      IS_PUBLIC_KEY,
-      context.getHandler(),
-    );
-    if (isPublic) {
+    if (this.reflector.get<boolean>(IS_PUBLIC_KEY, context.getHandler())) {
       return true;
     }
 
-    const httpCtx = context.switchToHttp();
-    const req = httpCtx.getRequest<Request>();
+    const req = context.switchToHttp().getRequest<Request>();
+    const isRefreshOnly = this.reflector.get<boolean>(
+      IS_REFRESH_ONLY_KEY,
+      context.getHandler(),
+    );
 
-    const clientId = req.headers[headers.X_CLIENT_ID];
-    if (!clientId) {
-      throw new UnauthorizedException('Client ID is required.');
+    if (isRefreshOnly) {
+      const refreshToken = req.headers[headers.REFRESH_TOKEN] as string;
+      if (!refreshToken) {
+        throw new UnauthorizedException('Refresh token is required.');
+      }
+
+      const payload = this.jwtTokenService.verify(refreshToken, 'refresh');
+      const currentVersion = await this.sessionService.getSessionVersion(
+        payload.sub,
+      );
+      this.sessionService.assertNotRevoked(payload, currentVersion);
+
+      req.user = payload;
+      return true;
     }
 
     const accessToken = req.headers[headers.AUTHORIZATION];
@@ -44,47 +54,18 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('You are not logged in.');
     }
 
-    const refreshToken = req.headers[headers.REFRESH_TOKEN] as string;
-
     const [bearer, token] = accessToken.split(' ');
     if (bearer !== 'Bearer' || !token) {
       throw new UnauthorizedException('Invalid access token.');
     }
 
-    const keyToken = await this.keyTokenService.findKeyTokenByUserId(
-      clientId as string,
+    const payload = this.jwtTokenService.verify(token, 'access');
+    const currentVersion = await this.sessionService.getSessionVersion(
+      payload.sub,
     );
-    if (!keyToken) {
-      throw new UnauthorizedException("You're not logged in.");
-    }
+    this.sessionService.assertNotRevoked(payload, currentVersion);
 
-    if (refreshToken) {
-      const decodedRefreshToken = this.keyTokenService.verifyJWTToken(
-        refreshToken,
-        keyToken.publicKey,
-      );
-      if (!decodedRefreshToken) {
-        throw new UnauthorizedException('Invalid token.');
-      }
-
-      req.user = decodedRefreshToken;
-      req.refreshToken = refreshToken;
-      req.keyToken = keyToken;
-
-      return true;
-    }
-
-    const decodedAccessToken = this.keyTokenService.verifyJWTToken(
-      token,
-      keyToken.publicKey,
-    );
-    if (!decodedAccessToken) {
-      throw new UnauthorizedException('Invalid token.');
-    }
-
-    req.user = decodedAccessToken;
-    req.keyToken = keyToken;
-
+    req.user = payload;
     return true;
   }
 }

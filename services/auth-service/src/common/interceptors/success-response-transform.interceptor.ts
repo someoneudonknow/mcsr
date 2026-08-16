@@ -24,17 +24,17 @@ export class SuccessResponseTransformInterceptor<T> implements NestInterceptor<
     context: ExecutionContext,
     next: CallHandler<any>,
   ): Observable<ApiResponse<T>> | Promise<Observable<ApiResponse<T>>> {
-    const responseMessage = this.reflector.get<ResponseMessageOpts>(
-      RESPONSE_MESSAGE_KEY,
-      context.getHandler(),
-    );
-    const noResponseFormat = this.reflector.get<boolean>(
-      NO_RESPONSE_FORMAT_KEY,
-      context.getHandler(),
-    );
-    if (noResponseFormat) {
+    const handler = context.getHandler();
+
+    if (this.reflector.get<boolean>(NO_RESPONSE_FORMAT_KEY, handler)) {
       return next.handle();
     }
+
+    const responseMessage = this.reflector.get<ResponseMessageOpts>(
+      RESPONSE_MESSAGE_KEY,
+      handler,
+    );
+
     return next.handle().pipe(
       map((data) => {
         return {

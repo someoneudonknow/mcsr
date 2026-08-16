@@ -1,6 +1,6 @@
-import { LoginDto, RegisterDto } from '#auth/dtos/auth.dto';
+import { LoginDto, RegisterDto, TenantRegisterDto } from '#auth/dtos/auth.dto';
 import { AuthService } from '#auth/services/auth.service';
-import { Public } from '#common/decorators';
+import { Public, RefreshOnly } from '#common/decorators';
 import { ResponseMessage } from '#common/decorators/response-message.decorator';
 import { Body, Controller, Post, Req } from '@nestjs/common';
 import { Request } from 'express';
@@ -10,15 +10,15 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('refresh-token')
+  @RefreshOnly()
   @ResponseMessage({ message: 'Token refreshed successfully', statusCode: 200 })
   async refreshToken(@Req() req: Request) {
     return await this.authService.refreshTheToken({
-      userJwtPayload: req.user,
-      refreshToken: req.refreshToken,
-      keyToken: req.keyToken,
+      payload: req.user,
     });
   }
 
+  // Register user account of tenant
   @Post('register')
   @Public()
   @ResponseMessage({ message: 'User registered successfully', statusCode: 201 })
@@ -43,6 +43,6 @@ export class AuthController {
   @Post('logout')
   @ResponseMessage({ message: 'User logged out successfully', statusCode: 200 })
   async logout(@Req() req: Request) {
-    return await this.authService.logout(req.user.userId);
+    return await this.authService.logout(req.user.sub);
   }
 }
