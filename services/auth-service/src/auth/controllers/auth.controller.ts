@@ -1,6 +1,6 @@
-import { LoginDto, RegisterDto, TenantRegisterDto } from '#auth/dtos/auth.dto';
+import { LoginDto } from '#auth/dtos/auth.dto';
 import { AuthService } from '#auth/services/auth.service';
-import { Public, RefreshOnly } from '#common/decorators';
+import { Public, RefreshOnly, TenantSlug } from '#common/decorators';
 import { ResponseMessage } from '#common/decorators/response-message.decorator';
 import { Body, Controller, Post, Req } from '@nestjs/common';
 import { Request } from 'express';
@@ -18,24 +18,13 @@ export class AuthController {
     });
   }
 
-  // Register user account of tenant
-  @Post('register')
-  @Public()
-  @ResponseMessage({ message: 'User registered successfully', statusCode: 201 })
-  async register(@Body() body: RegisterDto) {
-    return await this.authService.register({
-      username: body.username,
-      password: body.password,
-      email: body.email,
-    });
-  }
-
   @Post('login')
   @Public()
   @ResponseMessage({ message: 'User logged in successfully', statusCode: 200 })
-  async login(@Body() body: LoginDto) {
+  async login(@Body() body: LoginDto, @TenantSlug() slug?: string) {
     return await this.authService.login({
-      identifier: body.usernameOrEmail,
+      tenantSlug: slug,
+      email: body.email,
       password: body.password,
     });
   }
@@ -43,6 +32,6 @@ export class AuthController {
   @Post('logout')
   @ResponseMessage({ message: 'User logged out successfully', statusCode: 200 })
   async logout(@Req() req: Request) {
-    return await this.authService.logout(req.user.sub);
+    return await this.authService.logout(req.user.tid, req.user.sub);
   }
 }

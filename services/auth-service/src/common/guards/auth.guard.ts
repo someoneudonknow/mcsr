@@ -41,6 +41,7 @@ export class AuthGuard implements CanActivate {
 
       const payload = this.jwtTokenService.verify(refreshToken, 'refresh');
       const currentVersion = await this.sessionService.getSessionVersion(
+        payload.tid,
         payload.sub,
       );
       this.sessionService.assertNotRevoked(payload, currentVersion);
@@ -61,6 +62,7 @@ export class AuthGuard implements CanActivate {
 
     const payload = this.jwtTokenService.verify(token, 'access');
     const currentVersion = await this.sessionService.getSessionVersion(
+      payload.tid,
       payload.sub,
     );
     this.sessionService.assertNotRevoked(payload, currentVersion);

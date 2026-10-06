@@ -35,7 +35,10 @@ export class JwtTokenService {
     };
   }
 
-  signTokenPair(user: { sub: string; email: string }, sessionVersion: number) {
+  signTokenPair(
+    user: { sub: string; email: string; tid: string },
+    sessionVersion: number,
+  ) {
     const base = { ...user, sv: sessionVersion };
     const refreshJti = randomUUID();
 

@@ -60,7 +60,7 @@ export class OutboxRelayService implements OnModuleDestroy, OnModuleInit {
             publishedAt: new Date(),
           });
         } catch (error: unknown) {
-          await this.outboxEventRepo.increment({ id: event.id }, 'attemps', 1);
+          await this.outboxEventRepo.increment({ id: event.id }, 'attempts', 1);
           this.logger.error(`Publish failed for ${event.id}: ${error}`);
         }
       }

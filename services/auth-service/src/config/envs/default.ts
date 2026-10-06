@@ -4,8 +4,10 @@ const currentKey = buildKey('JWT_CURRENT');
 const previousKey = buildKey('JWT_PREVIOUS');
 
 export const config = {
+  app: {
+    port: process.env['APP_PORT'] || 3000,
+  },
   db: {
-    autoLoadEntities: true,
     logging: true,
     entities: [`${__dirname}/../../entity/**/*.{js,ts}`],
   },

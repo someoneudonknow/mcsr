@@ -14,13 +14,14 @@ import { KAFKA_CLIENT } from './constants';
       {
         name: KAFKA_CLIENT,
         imports: [ConfigModule],
+        inject: [ConfigService],
         useFactory: (c: ConfigService): ClientProvider => {
           return {
             transport: Transport.KAFKA,
             options: {
               client: {
                 brokers: c.get<string[]>('kafka.brokers', []),
-                clientId: c.get<string>('kafka.clientId', ''),
+                clientId: `${c.get<string>('kafka.clientId', '')}-client`,
                 connectTimeout: c.get<number>('kafka.connectTimeout'),
                 requestTimeout: c.get<number>('kafka.requestTimeout'),
                 enforceRequestTimeout: c.get<boolean>(

@@ -1,3 +1,4 @@
-export { AuthService } from './auth.service';
-export { JwtTokenService } from './jwt-token.service';
-export { SessionService } from './session.service';
+export * from './auth.service';
+export * from './jwt-token.service';
+export * from './session.service';
+export * from './tenant-auth.service';

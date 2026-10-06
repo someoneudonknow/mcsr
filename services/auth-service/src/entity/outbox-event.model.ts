@@ -2,10 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity('outbox_events')
+@Index('idx_outbox_pending', ['createdAt'], { where: '"published_at" IS NULL' })
 export class OutboxEvent {
   @PrimaryGeneratedColumn('uuid')
   id!: string;

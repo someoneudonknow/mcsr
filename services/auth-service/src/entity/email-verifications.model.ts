@@ -22,7 +22,7 @@ export class EmailVerifications {
   expiresAt!: Date;
 
   @Column({ name: 'consumed_at', nullable: true, type: 'timestamptz' })
-  consumedAt!: Date;
+  consumedAt?: Date;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;

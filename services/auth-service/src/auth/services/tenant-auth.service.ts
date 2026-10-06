@@ -4,7 +4,7 @@ import {
   isSlugReserved,
   isSlugValid,
   normalizeSlug,
-  sha256,
+  sha3_256,
 } from '#common/utils';
 import {
   BadRequestException,
@@ -34,8 +34,8 @@ import { OutboxEvent } from '#entity/outbox-event.model';
 import { AuthEvents } from '#auth/constants/auth.event';
 
 @Injectable()
-export class TenantAuth {
-  private readonly logger = new Logger(TenantAuth.name);
+export class TenantAuthService {
+  private readonly logger = new Logger(TenantAuthService.name);
 
   constructor(
     @InjectDataSource() private readonly datasource: DataSource,
@@ -62,7 +62,7 @@ export class TenantAuth {
         organizationName: dto.organizationName,
         ownerEmail: dto.email,
         ownerIdentityId: identityId,
-        idempotencyKey: sha256(`${slug}:${dto.email}`),
+        idempotencyKey: sha3_256(`${slug}:${dto.email}`),
       });
       tenantId = reserved.tenantId;
     } catch (error: unknown) {
@@ -90,11 +90,16 @@ export class TenantAuth {
 
         await m.insert(EmailVerifications, {
           identityId,
-          tokenHash: sha256(rawToken),
+          tokenHash: sha3_256(rawToken),
           expiresAt: new Date(Date.now() + VERIFICATION_TTL_MS),
         });
       });
     } catch (error) {
+      if ((error as { code?: string })?.code === '23505') {
+        this.logger.warn(`Duplicate signup for ${dto.email} on ${slug}`);
+        return { tenantId, status: 'pending' };
+      }
+
       await this.organizationPort
         .releaseSlug(tenantId)
         .catch((releaseError) => {
@@ -111,7 +116,7 @@ export class TenantAuth {
   }
 
   async verifyEmail(token: string): Promise<{ verified: true }> {
-    const tokenHash = sha256(token);
+    const tokenHash = sha3_256(token);
 
     await this.datasource.transaction(async (m) => {
       const verification = await m.findOne(EmailVerifications, {

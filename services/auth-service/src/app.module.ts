@@ -2,7 +2,6 @@ import { AuthModule } from '#auth/auth.module';
 import { CommonModule } from '#common/common.module';
 import { SuccessResponseTransformInterceptor } from '#common/interceptors/success-response-transform.interceptor';
 import { configuration } from '#config/configuration';
-import { UserModule } from '#user/user.module';
 import {
   ClassSerializerInterceptor,
   Module,
@@ -18,6 +17,7 @@ import { HealthModule } from './health/health.module';
 import { OrganizationModule } from './organization/organization.module';
 import { KafkaModule } from './kafka/kafka.module';
 import { OutboxModule } from './outbox/outbox.module';
+import { IdentityModule } from './identity/identity.module';
 
 @Module({
   imports: [
@@ -45,8 +45,8 @@ import { OutboxModule } from './outbox/outbox.module';
     HealthModule,
     OutboxModule,
     AuthModule,
-    UserModule,
     OrganizationModule,
+    IdentityModule,
   ],
   providers: [
     {

@@ -1,5 +1,5 @@
-const SLUG_PATTERN = /^[a-z][a-z0-9-]{2,62}$/;
-const RESERVED_SLUG = new Set([
+export const SLUG_PATTERN = /^[a-z][a-z0-9-]{2,62}$/;
+export const RESERVED_SLUG = new Set([
   'postgres',
   'template0',
   'template1',

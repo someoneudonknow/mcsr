@@ -11,6 +11,8 @@ import {
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { ORGANIZATION_PORT } from './organization.port';
+import { OrganizationSyncService, TenantDirectoryService } from './services';
+import { OrganizationEventsController } from './controllers';
 
 @Module({
   imports: [
@@ -31,12 +33,15 @@ import { ORGANIZATION_PORT } from './organization.port';
       },
     ]),
   ],
+  controllers: [OrganizationEventsController],
   providers: [
     {
       useClass: OrganizationGrpcAdapter,
       provide: ORGANIZATION_PORT,
     },
+    TenantDirectoryService,
+    OrganizationSyncService,
   ],
-  exports: [ORGANIZATION_PORT],
+  exports: [ORGANIZATION_PORT, TenantDirectoryService],
 })
 export class OrganizationModule {}

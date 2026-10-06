@@ -2,10 +2,8 @@ import { DAYS, MILLISECONDS, SECONDS_MS } from '#common/constants';
 import { CompressionTypes } from 'kafkajs';
 
 export const config = {
-  app: {
-    port: process.env['APP_PORT'] || 3000,
-  },
   db: {
+    autoLoadEntities: true,
     type: process.env['DB_TYPE'] || 'postgres',
     host: process.env['DB_HOST'] || 'localhost',
     port: process.env['DB_PORT'] || 27017,

@@ -1,3 +1,4 @@
+import { SLUG_PATTERN } from '#common/utils';
 import {
   IsEmail,
   IsNotEmpty,
@@ -12,7 +13,7 @@ export class TenantRegisterDto {
   @IsOptional()
   @IsString()
   @MaxLength(63)
-  @Matches(/ ^[a-z][a-z0-9-]{2,62}$/, {
+  @Matches(SLUG_PATTERN, {
     message:
       'Slug must be lowercase, alphanumeric, and dash-separated (e.g., example-slug)',
   })
@@ -32,6 +33,13 @@ export class TenantRegisterDto {
   @MinLength(12)
   @MaxLength(128)
   password!: string;
+}
+
+export class VerifyEmailDto {
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(128)
+  token!: string;
 }
 
 export class TenantRegisterResponseDto {

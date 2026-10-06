@@ -17,23 +17,31 @@ export class SessionService {
     return this.configService.get<number>('security.sessionTtlSeconds')!;
   }
 
-  async start(userId: string, refreshJti: string): Promise<void> {
-    await this.redisService.del(AuthRedisKey.refreshTokenUsed(userId));
+  async start(
+    tenantId: string,
+    userId: string,
+    refreshJti: string,
+  ): Promise<void> {
+    await this.redisService.del(
+      AuthRedisKey.refreshTokenUsed(tenantId, userId),
+    );
     await this.redisService.hset(
-      AuthRedisKey.session(userId),
+      AuthRedisKey.session(tenantId, userId),
       { refreshJti },
       this.sessionTtl,
     );
   }
 
-  async getSessionVersion(userId: string): Promise<number> {
-    const raw = this.redisService.get(AuthRedisKey.sessionVersion(userId));
+  async getSessionVersion(tenantId: string, userId: string): Promise<number> {
+    const raw = await this.redisService.get(
+      AuthRedisKey.sessionVersion(tenantId, userId),
+    );
     return raw ? Number(raw) : 0;
   }
 
-  async bumpSessionVersion(userId: string): Promise<number> {
+  async bumpSessionVersion(tenantId: string, userId: string): Promise<number> {
     const next = await this.redisService.incr(
-      AuthRedisKey.sessionVersion(userId),
+      AuthRedisKey.sessionVersion(tenantId, userId),
     );
     this.logger.log(`Session version bumped to ${next} for user #${userId}`);
     return next;
@@ -46,40 +54,45 @@ export class SessionService {
   }
 
   async rotate(
+    tenantId: string,
     userId: string,
     usedJti: string,
     nextJti: string,
   ): Promise<void> {
     await this.redisService.sadd(
-      AuthRedisKey.refreshTokenUsed(userId),
+      AuthRedisKey.refreshTokenUsed(tenantId, userId),
       [usedJti],
       this.sessionTtl,
     );
     await this.redisService.hset(
-      AuthRedisKey.session(userId),
+      AuthRedisKey.session(tenantId, userId),
       { refreshJti: nextJti },
       this.sessionTtl,
     );
   }
 
-  async end(userId: string): Promise<void> {
+  async end(tenantId: string, userId: string): Promise<void> {
     await this.redisService.del(
-      AuthRedisKey.session(userId),
-      AuthRedisKey.refreshTokenUsed(userId),
+      AuthRedisKey.session(tenantId, userId),
+      AuthRedisKey.refreshTokenUsed(tenantId, userId),
     );
     this.logger.log(`Session ended for user ${userId}`);
   }
 
-  async isRefreshJtiUsed(userId: string, refreshJti: string): Promise<boolean> {
+  async isRefreshJtiUsed(
+    tenantId: string,
+    userId: string,
+    refreshJti: string,
+  ): Promise<boolean> {
     return await this.redisService.sismember(
-      AuthRedisKey.refreshTokenUsed(userId),
+      AuthRedisKey.refreshTokenUsed(tenantId, userId),
       refreshJti,
     );
   }
 
-  async find(userId: string): Promise<SessionData | null> {
+  async find(tenantId: string, userId: string): Promise<SessionData | null> {
     return await this.redisService.hgetall<SessionData>(
-      AuthRedisKey.session(userId),
+      AuthRedisKey.session(tenantId, userId),
     );
   }
 }

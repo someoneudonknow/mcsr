@@ -1,3 +1,4 @@
+export { TenantSlug } from './tenant-slug.decorator';
 export {
   ResponseMessage,
   RESPONSE_MESSAGE_KEY,

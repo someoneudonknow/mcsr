@@ -8,7 +8,7 @@ export interface UserJwtPayload {
   jti: string;
   sv: number;
   // Don't be confuse this is the tenant id
-  tid: number;
+  tid: string;
 }
 
 export type JwtKey = { kid: string; publicKey: string; privateKey?: string };

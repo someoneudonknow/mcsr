@@ -1,7 +1,6 @@
 import {
   Inject,
   Injectable,
-  Logger,
   OnModuleInit,
   ServiceUnavailableException,
 } from '@nestjs/common';
@@ -20,7 +19,6 @@ const ORGANIZATION_GRPC_TIMEOUT = 2000;
 
 @Injectable()
 export class OrganizationGrpcAdapter implements OrganizationPort, OnModuleInit {
-  private readonly logger = new Logger(OrganizationGrpcAdapter.name);
   private client!: OrganizationGrpcClient;
 
   constructor(@Inject('ORGANIZATION_GRPC') private readonly grpc: ClientGrpc) {}
