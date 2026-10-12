@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { status as GrpcStatus } from '@grpc/grpc-js';
 import { ClientGrpc } from '@nestjs/microservices';
-import { ORGANIZATION_GRPC, ORGANIZATION_GRPC_PACKAGE } from '../constants';
+import { ORGANIZATION_GRPC, ORGANIZATION_GRPC_SERVICE } from '../constants';
 import {
   OrganizationPort,
   ReserverSlugInput,
@@ -25,7 +25,7 @@ export class OrganizationGrpcAdapter implements OrganizationPort, OnModuleInit {
 
   onModuleInit() {
     this.client = this.grpc.getService<OrganizationGrpcClient>(
-      ORGANIZATION_GRPC_PACKAGE,
+      ORGANIZATION_GRPC_SERVICE,
     );
   }
 

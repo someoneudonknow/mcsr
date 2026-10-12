@@ -14,8 +14,6 @@ import { ErrorCode } from '#common/exceptions';
 import { IdentityService } from 'src/identity/services';
 import { TenantDirectoryService } from 'src/organization/services';
 
-// Compared against when the email is unknown, so a miss costs the same bcrypt
-// time as a hit. Without it, response latency reveals which emails exist.
 const DUMMY_PASSWORD_HASH = bcrypt.hashSync('timing-equaliser', 10);
 
 @Injectable()
