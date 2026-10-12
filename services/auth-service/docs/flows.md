@@ -65,13 +65,13 @@ Redis key and every request 503s.
 
 ### Failure handling
 
-| Failure | Behavior |
-|---|---|
-| Slug invalid / reserved | `400 SLUG_INVALID` / `SLUG_RESERVED`, nothing written |
-| Slug already taken | `409 SLUG_TAKEN` |
-| org-service unreachable | `503`, nothing written |
-| Local TX fails | `releaseSlug(tenantId)` compensates, then the error is rethrown |
-| **Duplicate signup (same slug + email)** | `202` with the same `tenantId` — see below |
+| Failure                                  | Behavior                                                        |
+| ---------------------------------------- | --------------------------------------------------------------- |
+| Slug invalid / reserved                  | `400 SLUG_INVALID` / `SLUG_RESERVED`, nothing written           |
+| Slug already taken                       | `409 SLUG_TAKEN`                                                |
+| org-service unreachable                  | `503`, nothing written                                          |
+| Local TX fails                           | `releaseSlug(tenantId)` compensates, then the error is rethrown |
+| **Duplicate signup (same slug + email)** | `202` with the same `tenantId` — see below                      |
 
 The duplicate case is subtle and worth understanding before you touch
 `TenantAuthService.register`:
@@ -79,7 +79,7 @@ The duplicate case is subtle and worth understanding before you touch
 `reserveSlug` is idempotent on `idempotencyKey = sha3_256(slug:email)`. A retry
 therefore gets back the **same** `tenantId`, then collides on the
 `(tenant_id, email)` unique index — Postgres error `23505`. That collision means
-the *first* attempt already succeeded, so compensating would delete a live
+the _first_ attempt already succeeded, so compensating would delete a live
 organization. The handler returns success instead:
 
 ```ts
@@ -89,7 +89,7 @@ if ((error as { code?: string })?.code === '23505') {
 ```
 
 Because the idempotency key includes the email, org-service only replays the same
-`tenantId` to the *same* person. A different email on the same slug produces a
+`tenantId` to the _same_ person. A different email on the same slug produces a
 different key and gets `SLUG_TAKEN`, so this can never hand someone another
 tenant's workspace.
 
@@ -105,7 +105,7 @@ authenticate. This can last minutes. Login distinguishes it explicitly:
 
 ```
 POST /api/v1/auth/login
-Header: X-Tenant-Slug: acme   (or the subdomain acme.geomessage.com)
+Header: X-Tenant-Slug: acme   (or the subdomain acme.mcsr.com)
 Body:   { email, password }
 ```
 
@@ -152,7 +152,7 @@ POST /api/v1/auth/refresh-token
 Header: refresh-token: <token>
 ```
 
-Guarded by `@RefreshOnly()`, which is what makes a refresh token usable *only*
+Guarded by `@RefreshOnly()`, which is what makes a refresh token usable _only_
 here. `JwtTokenService.verify(token, 'refresh')` additionally rejects an access
 token by its `typ` claim, so the restriction holds at both the route and the
 token level.
@@ -183,8 +183,8 @@ token fails both, and you want the session-kill path, not a generic 401.
 ## Logout and revocation
 
 ```ts
-await this.sessionService.bumpSessionVersion(tenantId, userId);  // first
-await this.sessionService.end(tenantId, userId);                 // then
+await this.sessionService.bumpSessionVersion(tenantId, userId); // first
+await this.sessionService.end(tenantId, userId); // then
 ```
 
 The order matters. If the process dies between the two, you are left with a stale

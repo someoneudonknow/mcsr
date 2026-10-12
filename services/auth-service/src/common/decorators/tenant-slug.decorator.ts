@@ -2,7 +2,7 @@ import { isSlugValid } from '#common/utils';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { Request } from 'express';
 
-// Subdomain in production (acme.geomessage.com), header fallback for local dev
+// Subdomain in production (acme.mcsr.com), header fallback for local dev
 // where there is no wildcard DNS.
 //
 // Returns undefined for anything that is not a well-formed slug. Callers MUST

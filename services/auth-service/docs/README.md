@@ -1,6 +1,6 @@
 # auth-service
 
-Authentication and session management for the GeoMessage platform. Multi-tenant,
+Authentication and session management for the mcsr platform. Multi-tenant,
 one identity belongs to exactly one tenant.
 
 | | |
