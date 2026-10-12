@@ -9,6 +9,11 @@ TOPICS=(
 )
 
 for topic in "${TOPICS[@]}"; do
-    echo "Creating topic $topic"
-  docker exec -it mcs
+  echo "Creating topic $topic"
+  docker exec -it mcsr_kafka_1 /opt/kafka/bin/kafka-topics.sh \
+    --bootstrap-server kafka-1:9092 \
+    --create --if-not-exists \
+    --topic "$topic" \
+    --partition 3 \
+    --replication-factor 3
 done
