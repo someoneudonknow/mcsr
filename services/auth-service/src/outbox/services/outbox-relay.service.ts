@@ -61,7 +61,9 @@ export class OutboxRelayService implements OnModuleDestroy, OnModuleInit {
           });
         } catch (error: unknown) {
           await this.outboxEventRepo.increment({ id: event.id }, 'attempts', 1);
-          this.logger.error(`Publish failed for ${event.id}: ${error}`);
+          this.logger.error(
+            `Publish failed for ${event.id}: ${(error as Error).message}`,
+          );
         }
       }
     } catch (error: unknown) {

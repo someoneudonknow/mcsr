@@ -1,0 +1,34 @@
+# --- Git History ---
+.git
+.gitignore
+
+# --- Local Development & Build Artifacts ---
+bin/
+dist/
+*.exe
+*.test
+*.out
+
+# --- Docker Configurations ---
+docker-compose.yml
+docker-compose.*.yml
+README.md
+LICENSE
+
+# --- Environment and Secrets ---
+.env
+.env.*
+secrets.yaml
+
+# --- IDEs and System Garbage ---
+.idea/
+.vscode/
+.DS_Store
+
+# docs and logs
+docs/
+logs/
+
+# Automate scripts
+scripts/
+Makefile

@@ -10,7 +10,6 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const c = app.get(ConfigService);
 
-  // A hybrid app: the Kafka consumer runs in the same process as the HTTP API.
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.KAFKA,
     options: {
@@ -52,4 +51,5 @@ async function bootstrap() {
   await app.startAllMicroservices();
   await app.listen(c.get<string>('app.port')!);
 }
-bootstrap();
+
+void bootstrap();

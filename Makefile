@@ -6,6 +6,7 @@ help:
 	@echo "  make down    - Stop all infrastructure"
 	@echo "  make logs    - View logs of all containers"
 	@echo "  make build   - Build docker images for services"
+	@echo "  make init-kafka-topic  - Create Kafka topics"
 
 up:
 	docker compose -f infra/docker-compose.yml up -d
@@ -21,3 +22,6 @@ logs:
 
 build:
 	docker build -t mcsr-auth-service ./services/auth-service
+
+init-kafka-topic:
+	./infra/scripts/create-kafka-topic.sh

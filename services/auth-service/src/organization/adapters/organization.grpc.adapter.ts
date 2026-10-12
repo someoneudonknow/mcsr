@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { status as GrpcStatus } from '@grpc/grpc-js';
 import { ClientGrpc } from '@nestjs/microservices';
-import { ORGANIZATION_GRPC_PACKAGE } from '../constants';
+import { ORGANIZATION_GRPC, ORGANIZATION_GRPC_PACKAGE } from '../constants';
 import {
   OrganizationPort,
   ReserverSlugInput,
@@ -21,7 +21,7 @@ const ORGANIZATION_GRPC_TIMEOUT = 2000;
 export class OrganizationGrpcAdapter implements OrganizationPort, OnModuleInit {
   private client!: OrganizationGrpcClient;
 
-  constructor(@Inject('ORGANIZATION_GRPC') private readonly grpc: ClientGrpc) {}
+  constructor(@Inject(ORGANIZATION_GRPC) private readonly grpc: ClientGrpc) {}
 
   onModuleInit() {
     this.client = this.grpc.getService<OrganizationGrpcClient>(
